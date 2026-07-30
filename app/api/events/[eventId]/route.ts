@@ -1,40 +1,39 @@
 import { NextResponse } from 'next/server'
 import { getAdminUser, unauthorized, forbidden } from '@/lib/api-auth'
-import { slugify } from '@/lib/utils'
 
-export async function GET() {
-  const { createClient } = await import('@supabase/supabase-js')
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-  const { data, error } = await supabase
-    .from('events_with_meta').select('*').eq('is_public', true).order('date', { ascending: false })
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
-}
-
-export async function POST(req: Request) {
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  console.log('PATCH /api/events/', params.id)
+  
   const { supabase, error } = await getAdminUser(req)
+  console.log('Auth error:', error)
+  
   if (error === 'No token' || error === 'Unauthorized') return unauthorized()
   if (error === 'Forbidden') return forbidden()
 
   const body = await req.json()
-  if (!body.title || !body.date) {
-    return NextResponse.json({ error: 'title e date são obrigatórios' }, { status: 400 })
-  }
-
-  const slug = slugify(body.title) + '-' + Date.now().toString(36)
+  console.log('Body:', body)
 
   const { data, error: dbError } = await supabase!
-    .from('events')
-    .insert({ ...body, slug })
-    .select()
-    .single()
+    .from('events').update(body).eq('id', params.id).select().single()
 
-  if (dbError) {
-    console.error('DB Error:', dbError)
-    return NextResponse.json({ error: dbError.message }, { status: 500 })
-  }
-  return NextResponse.json(data, { status: 201 })
+  console.log('DB result:', data, 'DB error:', dbError)
+
+  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 })
+  return NextResponse.json(data)
+}
+
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  console.log('DELETE /api/events/', params.id)
+  
+  const { supabase, error } = await getAdminUser(req)
+  if (error === 'No token' || error === 'Unauthorized') return unauthorized()
+  if (error === 'Forbidden') return forbidden()
+
+  const { error: dbError } = await supabase!
+    .from('events').delete().eq('id', params.id)
+
+  console.log('Delete error:', dbError)
+
+  if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
 }
