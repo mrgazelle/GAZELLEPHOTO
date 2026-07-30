@@ -60,7 +60,7 @@ export default function EditEventPage() {
     setSaving(true)
     try {
       const token = await getToken()
-      const res = await fetch(`/api/events/${id}`, {
+      const res = await fetch(`app/api/events/[eventId]`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -82,7 +82,7 @@ export default function EditEventPage() {
   async function onDelete() {
     if (!confirm('Apagar este evento e todas as suas fotos?')) return
     const token = await getToken()
-    const res = await fetch(`/api/events/${id}`, {
+    const res = await fetch(`app/api/events/[eventId]`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })

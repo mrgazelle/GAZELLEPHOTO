@@ -24,7 +24,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   console.log('DELETE /api/events/', params.id)
-  
+
   const { supabase, error } = await getAdminUser(req)
   if (error === 'No token' || error === 'Unauthorized') return unauthorized()
   if (error === 'Forbidden') return forbidden()
