@@ -2,8 +2,10 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAdminUser, unauthorized, forbidden } from '@/lib/api-auth'
+import { revalidatePath } from 'next/cache' 
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const { error } = await getAdminUser(req)
@@ -28,6 +30,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 })
 
+  revalidatePath('/portfolio')
 
   return NextResponse.json(data)
 }

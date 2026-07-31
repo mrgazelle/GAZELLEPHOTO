@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Upload, Heart, ImageIcon, Trash2, X, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 interface Photo {
   id: string; url: string; thumbnail_url: string
@@ -26,6 +27,8 @@ export default function AdminPhotosPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('')
 
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const router = useRouter()
 
   async function getToken() {
     const { data: { session } } = await createClient().auth.getSession()
@@ -93,7 +96,9 @@ export default function AdminPhotosPage() {
     const action = photo.is_portfolio ? 'Remover do portfolio?' : 'Adicionar ao portfolio?'
     if (!confirm(action)) return
 
+
     const token = await getToken()
+    setPhotos(prev => prev.map(p => p.id === photo.id ? { ...p, is_portfolio: !p.is_portfolio } : p))
     const res = await fetch(`/api/photos/${photo.id}/portfolio`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -105,6 +110,7 @@ export default function AdminPhotosPage() {
       setPhotos(prev => prev.map(p =>
         p.id === photo.id ? { ...p, is_portfolio: updated.is_portfolio } : p
       ))
+      router.refresh()
     } else {
       const err = await res.json().catch(() => ({}))
       alert('Erro: ' + JSON.stringify(err))
