@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useState, useMemo } from 'react'
 import { X, ChevronLeft, ChevronRight, Download, Info } from 'lucide-react'
 import type { Category, Photo } from '@/types'
-import { format }, from 'date-fns'
+import { format } from 'date-fns'
 
 interface Props {
   photos: Photo[]
