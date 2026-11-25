@@ -1,9 +1,9 @@
 'use client'
 import Image from 'next/image'
 import { useState, useMemo } from 'react'
-import { X, ChevronLeft, ChevronRight, Download, Info } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react'
 import type { Category, Photo } from '@/types'
-import { format }, from 'date-fns'
+import { format } from 'date-fns'
 
 interface Props {
   photos: Photo[]
@@ -13,7 +13,6 @@ interface Props {
 export function PortfolioClient({ photos, categories }: Props) {
   const [active, setActive]     = useState('all')
   const [selected, setSelected] = useState<Photo | null>(null)
-  const [showExif, setShowExif] = useState(false)
 
   const filtered = useMemo(() =>
   active === 'all'
@@ -116,47 +115,38 @@ export function PortfolioClient({ photos, categories }: Props) {
             {/* EXIF panel */}
             {selected.exif_data && Object.keys(selected.exif_data).length > 0 && (
               <div className="w-48 flex-shrink-0 gz-card p-4 hidden lg:block">
-                <div className="flex justify-between items-center mb-4">
-                  <p className="font-display text-xs tracking-widest uppercase text-gz-blue">
-                    EXIF
-                  </p>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setShowExif(!showExif) }}
-                    className="p-1 hover:bg-gz-blue/10 rounded-full"
-                    >
-                    <Info size={16} />
-                  </button>
+                <p className="font-display text-xs tracking-widest uppercase text-gz-blue mb-4">
+                  EXIF
+                </p>
+                <div className="space-y-3">
+                  {selected.exif_data.camera && (
+                    <ExifRow label="Câmara" value={selected.exif_data.camera} />
+                  )}
+                  {selected.exif_data.lens && (
+                    <ExifRow label="Objetiva" value={selected.exif_data.lens} />
+                  )}
+                  {selected.exif_data.focal_length && (
+                    <ExifRow label="Focal" value={selected.exif_data.focal_length} />
+                  )}
+                  {selected.exif_data.aperture && (
+                    <ExifRow label="Abertura" value={`ƒ${selected.exif_data.aperture}`} />
+                  )}
+                  {selected.exif_data.shutter_speed && (
+                    <ExifRow label="Velocidade" value={selected.exif_data.shutter_speed} />
+                  )}
+                  {selected.exif_data.iso && (
+                    <ExifRow label="ISO" value={String(selected.exif_data.iso)} />
+                  )}
+                  {selected.taken_at && (
+                    <ExifRow
+                      label="Hora"
+                      value={format(new Date(selected.taken_at), 'HH:mm')}
+                    />
+                  )}
                 </div>
-                {showExif && (
-                  <div className="space-y-3">
-                    {selected.exif_data.camera && (
-                      <ExifRow label="Câmara" value={selected.exif_data.camera} />
-                    )}
-                    {selected.exif_data.lens && (
-                      <ExifRow label="Objetiva" value={selected.exif_data.lens} />
-                    )}
-                    {selected.exif_data.focal_length && (
-                      <ExifRow label="Focal" value={selected.exif_data.focal_length} />
-                    )}
-                    {selected.exif_data.aperture && (
-                      <ExifRow label="Abertura" value={`ƒ${selected.exif_data.aperture}`} />
-                    )}
-                    {selected.exif_data.shutter_speed && (
-                      <ExifRow label="Velocidade" value={selected.exif_data.shutter_speed} />
-                    )}
-                    {selected.exif_data.iso && (
-                      <ExifRow label="ISO" value={String(selected.exif_data.iso)} />
-                    )}
-                    {selected.taken_at && (
-                      <ExifRow
-                        label="Hora"
-                        value={format(new Date(selected.taken_at), 'HH:mm')}
-                      />
-                    )}
-                  </div>
-                )}
               </div>
             )}
+            </div>
           </div>
         </div>
       )}
@@ -165,7 +155,7 @@ export function PortfolioClient({ photos, categories }: Props) {
 }
 
 function FilterBtn({ label, value, active, onClick }: {
-  label: string; value: string; actively: string; onClick: (v: string) => void
+  label: string; value: string; active: string; onClick: (v: string) => void
 }) {
   const isActive = active === value
   return (
@@ -211,8 +201,8 @@ function PhotoItem({ photo, onClick }: { photo: Photo; onClick: () => void }) {
             <div className="flex flex-wrap gap-1.5">
               {photo.exif_data.camera && <ExifTag label={photo.exif_data.camera} />}
               {photo.exif_data.aperture && <ExifTag label={`ƒ${photo.exif_data.aperture}`} />}
-              {photo.exif_da.shutter_speed && <ExifTag label={photo.exif_da.shutter_speed} />}
-              {photo.exif_da.iso && <ExifTag label={`ISO ${photo.exif_da.iso}`} />}
+              {photo.exif_data.shutter_speed && <ExifTag label={photo.exif_data.shutter_speed} />}
+              {photo.exif_data.iso && <ExifTag label={`ISO ${photo.exif_data.iso}`} />}
             </div>
           </div>
         )}
