@@ -1,9 +1,9 @@
 'use client'
 import Image from 'next/image'
 import { useState, useMemo } from 'react'
-import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Download, Info } from 'lucide-react'
 import type { Category, Photo } from '@/types'
-import { format } from 'date-fns'
+import { format }, from 'date-fns'
 
 interface Props {
   photos: Photo[]
@@ -13,6 +13,7 @@ interface Props {
 export function PortfolioClient({ photos, categories }: Props) {
   const [active, setActive]     = useState('all')
   const [selected, setSelected] = useState<Photo | null>(null)
+  const [showExif, setShowExif] = useState(false)
 
   const filtered = useMemo(() =>
   active === 'all'
@@ -25,7 +26,7 @@ export function PortfolioClient({ photos, categories }: Props) {
         return false
       }),
   [photos, active]
-)
+  )
 
   const navLightbox = (dir: 1 | -1) => {
     if (!selected) return
@@ -71,8 +72,8 @@ export function PortfolioClient({ photos, categories }: Props) {
           {/* Fechar */}
           <button
             className="absolute top-4 right-4 w-10 h-10 rounded-full border border-gz-border
-                       flex items-center justify-center text-gz-ghost hover:text-gz-white
-                       transition-colors z-10"
+            flex items-center justify-center text-gz-ghost hover:text-gz-white
+            transition-colors z-10"
             onClick={() => setSelected(null)}
           >
             <X size={18} />
@@ -82,8 +83,8 @@ export function PortfolioClient({ photos, categories }: Props) {
           <button
             onClick={(e) => { e.stopPropagation(); navLightbox(-1) }}
             className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full
-                       border border-gz-border flex items-center justify-center
-                       text-gz-ghost hover:text-gz-blue transition-colors z-10"
+            border border-gz-border flex items-center justify-center
+            text-gz-ghost hover:text-gz-blue transition-colors z-10"
           >
             <ChevronLeft size={20} />
           </button>
@@ -92,8 +93,8 @@ export function PortfolioClient({ photos, categories }: Props) {
           <button
             onClick={(e) => { e.stopPropagation(); navLightbox(1) }}
             className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full
-                       border border-gz-border flex items-center justify-center
-                       text-gz-ghost hover:text-gz-blue transition-colors z-10"
+            border border-gz-border flex items-center justify-center
+            text-gz-ghost hover:text-gz-blue transition-colors z-10"
           >
             <ChevronRight size={20} />
           </button>
@@ -115,44 +116,45 @@ export function PortfolioClient({ photos, categories }: Props) {
             {/* EXIF panel */}
             {selected.exif_data && Object.keys(selected.exif_data).length > 0 && (
               <div className="w-48 flex-shrink-0 gz-card p-4 hidden lg:block">
-                <p className="font-display text-xs tracking-widest uppercase text-gz-blue mb-4">
-                  EXIF
-                </p>
-                <div className="space-y-3">
-                  {selected.exif_data.camera && (
-                    <ExifRow label="Câmara" value={selected.exif_data.camera} />
-                  )}
-                  {selected.exif_data.lens && (
-                    <ExifRow label="Objetiva" value={selected.exif_data.lens} />
-                  )}
-                  {selected.exif_data.focal_length && (
-                    <ExifRow label="Focal" value={selected.exif_data.focal_length} />
-                  )}
-                  {selected.exif_data.aperture && (
-                    <ExifRow label="Abertura" value={`ƒ${selected.exif_data.aperture}`} />
-                  )}
-                  {selected.exif_data.shutter_speed && (
-                    <ExifRow label="Velocidade" value={selected.exif_data.shutter_speed} />
-                  )}
-                  {selected.exif_data.iso && (
-                    <ExifRow label="ISO" value={String(selected.exif_data.iso)} />
-                  )}
-                  {selected.taken_at && (
-                    <ExifRow
-                      label="Hora"
-                      value={format(new Date(selected.taken_at), 'HH:mm')}
-                    />
-                  )}
+                <div className="flex justify-between items-center mb-4">
+                  <p className="font-display text-xs tracking-widest uppercase text-gz-blue">
+                    EXIF
+                  </p>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowExif(!showExif) }}
+                    className="p-1 hover:bg-gz-blue/10 rounded-full"
+                    >
+                    <Info size={16} />
+                  </button>
                 </div>
-                <div className="mt-5">
-                  <a
-                    href={selected.url}
-                    download
-                    className="gz-btn-primary text-xs text-center flex items-center justify-center gap-2"
-                  >
-                    <Download size={12} /> Download
-                  </a>
-                </div>
+                {showExif && (
+                  <div className="space-y-3">
+                    {selected.exif_data.camera && (
+                      <ExifRow label="Câmara" value={selected.exif_data.camera} />
+                    )}
+                    {selected.exif_data.lens && (
+                      <ExifRow label="Objetiva" value={selected.exif_data.lens} />
+                    )}
+                    {selected.exif_data.focal_length && (
+                      <ExifRow label="Focal" value={selected.exif_data.focal_length} />
+                    )}
+                    {selected.exif_data.aperture && (
+                      <ExifRow label="Abertura" value={`ƒ${selected.exif_data.aperture}`} />
+                    )}
+                    {selected.exif_data.shutter_speed && (
+                      <ExifRow label="Velocidade" value={selected.exif_data.shutter_speed} />
+                    )}
+                    {selected.exif_data.iso && (
+                      <ExifRow label="ISO" value={String(selected.exif_data.iso)} />
+                    )}
+                    {selected.taken_at && (
+                      <ExifRow
+                        label="Hora"
+                        value={format(new Date(selected.taken_at), 'HH:mm')}
+                      />
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -163,18 +165,18 @@ export function PortfolioClient({ photos, categories }: Props) {
 }
 
 function FilterBtn({ label, value, active, onClick }: {
-  label: string; value: string; active: string; onClick: (v: string) => void
+  label: string; value: string; actively: string; onClick: (v: string) => void
 }) {
   const isActive = active === value
   return (
     <button
       onClick={() => onClick(value)}
       className={`font-display text-xs tracking-widest uppercase px-5 py-2.5 rounded-full
-                  border transition-all duration-200
-                  ${isActive
-                    ? 'bg-gz-blue text-gz-black border-gz-blue'
-                    : 'bg-transparent text-gz-ghost border-gz-border hover:border-gz-blue/40 hover:text-gz-white'
-                  }`}
+      border transition-all duration-200
+      ${isActive
+        ? 'bg-gz-blue text-gz-black border-gz-blue'
+        : 'bg-transparent text-gz-ghost border-gz-border hover:border-gz-blue/40 hover:text-gz-white'
+      }`}
     >
       {label}
     </button>
@@ -204,13 +206,13 @@ function PhotoItem({ photo, onClick }: { photo: Photo; onClick: () => void }) {
         {/* EXIF no hover */}
         {photo.exif_data && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent
-                          opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                          flex flex-col justify-end p-4">
+          opacity-0 group-hover:opacity-100 transition-opacity duration-300
+          flex flex-col justify-end p-4">
             <div className="flex flex-wrap gap-1.5">
               {photo.exif_data.camera && <ExifTag label={photo.exif_data.camera} />}
               {photo.exif_data.aperture && <ExifTag label={`ƒ${photo.exif_data.aperture}`} />}
-              {photo.exif_data.shutter_speed && <ExifTag label={photo.exif_data.shutter_speed} />}
-              {photo.exif_data.iso && <ExifTag label={`ISO ${photo.exif_data.iso}`} />}
+              {photo.exif_da.shutter_speed && <ExifTag label={photo.exif_da.shutter_speed} />}
+              {photo.exif_da.iso && <ExifTag label={`ISO ${photo.exif_da.iso}`} />}
             </div>
           </div>
         )}
