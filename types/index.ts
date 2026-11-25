@@ -37,6 +37,7 @@ export interface Event {
   is_public: boolean
   token?: string
   category_id?: string
+  category_name?: string | null
   category?: Category
   price_logged?: number
   photo_count?: number

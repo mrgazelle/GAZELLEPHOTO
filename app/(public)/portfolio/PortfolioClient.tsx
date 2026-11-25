@@ -11,21 +11,21 @@ interface Props {
 }
 
 export function PortfolioClient({ photos, categories }: Props) {
-  const [active, setActive]     = useState('all')
+  const [active, setActive] = useState('all')
   const [selected, setSelected] = useState<Photo | null>(null)
   const [showExif, setShowExif] = useState(false)
 
   const filtered = useMemo(() =>
-  active === 'all'
-    ? photos
-    : photos.filter((p: any) => {
+    active === 'all'
+      ? photos
+      : photos.filter((p: any) => {
         // Categoria direta (upload manual)
         if (p.categories?.slug === active) return true
         // Categoria via evento
         if (p.events?.categories?.slug === active) return true
         return false
       }),
-  [photos, active]
+    [photos, active]
   )
 
   const navLightbox = (dir: 1 | -1) => {
@@ -123,7 +123,7 @@ export function PortfolioClient({ photos, categories }: Props) {
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowExif(!showExif) }}
                     className="p-1 hover:bg-gz-blue/10 rounded-full"
-                    >
+                  >
                     <Info size={16} />
                   </button>
                 </div>
@@ -165,7 +165,7 @@ export function PortfolioClient({ photos, categories }: Props) {
 }
 
 function FilterBtn({ label, value, active, onClick }: {
-  label: string; value: string; actively: string; onClick: (v: string) => void
+  label: string; value: string; active: string; onClick: (v: string) => void
 }) {
   const isActive = active === value
   return (
@@ -174,9 +174,9 @@ function FilterBtn({ label, value, active, onClick }: {
       className={`font-display text-xs tracking-widest uppercase px-5 py-2.5 rounded-full
       border transition-all duration-200
       ${isActive
-        ? 'bg-gz-blue text-gz-black border-gz-blue'
-        : 'bg-transparent text-gz-ghost border-gz-border hover:border-gz-blue/40 hover:text-gz-white'
-      }`}
+          ? 'bg-gz-blue text-gz-black border-gz-blue'
+          : 'bg-transparent text-gz-ghost border-gz-border hover:border-gz-blue/40 hover:text-gz-white'
+        }`}
     >
       {label}
     </button>
@@ -211,8 +211,8 @@ function PhotoItem({ photo, onClick }: { photo: Photo; onClick: () => void }) {
             <div className="flex flex-wrap gap-1.5">
               {photo.exif_data.camera && <ExifTag label={photo.exif_data.camera} />}
               {photo.exif_data.aperture && <ExifTag label={`ƒ${photo.exif_data.aperture}`} />}
-              {photo.exif_da.shutter_speed && <ExifTag label={photo.exif_da.shutter_speed} />}
-              {photo.exif_da.iso && <ExifTag label={`ISO ${photo.exif_da.iso}`} />}
+              {photo.exif_data?.shutter_speed && <ExifTag label={photo.exif_data.shutter_speed} />}
+              {photo.exif_data?.iso && <ExifTag label={`ISO ${photo.exif_data.iso}`} />}
             </div>
           </div>
         )}

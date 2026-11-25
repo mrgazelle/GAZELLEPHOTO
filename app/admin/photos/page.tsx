@@ -67,46 +67,49 @@ export default function AdminPhotosPage() {
     inputRef.current?.click()
   }
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-  const files = Array.from(e.target.files ?? [])
-  if (!files.length || !event) return
+    async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
 
-  setUploading(true)
-  setProgress({ done: 0, total: files.length })
-  const token = await getToken()
+    setUploading(true)
+    setProgress({ done: 0, total: files.length })
+    const token = await getToken()
+    let failed = 0
 
-  for (let i = 0; i < files.length; i++) {
-    try {
-      // 1. Upload direto para Cloudinary (sem passar pelo Vercel)
-      const uploaded = await uploadToCloudinary(files[i], `gazelle/${event.slug}`)
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const uploaded = await uploadToCloudinary(files[i], 'gazelle/portfolio')
 
-      // 2. Guarda só o URL na base de dados (request pequeno, sem timeout)
-      await fetch('/api/photos/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          event_id:      id,
-          url:           uploaded.url,
-          thumbnail_url: uploaded.thumbnail_url,
-          public_id:     uploaded.public_id,
-          width:         uploaded.width,
-          height:        uploaded.height,
-        }),
-      })
-    } catch (err) {
-      console.error('Erro no upload:', err)
+        const res = await fetch('/api/photos/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            url:           uploaded.url,
+            thumbnail_url: uploaded.thumbnail_url,
+            public_id:     uploaded.public_id,
+            width:         uploaded.width,
+            height:        uploaded.height,
+            is_portfolio:  true,
+            category_id:   selectedCategory || null,
+          }),
+        })
+        if (!res.ok) throw new Error(`Erro ao guardar: ${res.status}`)
+      } catch (err) {
+        failed++
+        console.error('Erro no upload:', err)
+      }
+      setProgress({ done: i + 1, total: files.length })
     }
-    setProgress({ done: i + 1, total: files.length })
-  }
 
-  await loadPhotos()
-  setUploading(false)
-  setProgress({ done: 0, total: 0 })
-  if (inputRef.current) inputRef.current.value = ''
-}
+    await loadPhotos()
+    setUploading(false)
+    setProgress({ done: 0, total: 0 })
+    if (inputRef.current) inputRef.current.value = ''
+    if (failed) alert(`${failed} foto(s) falharam no upload.`)
+  }
 
   async function togglePortfolio(photo: Photo) {
     const action = photo.is_portfolio ? 'Remover do portfolio?' : 'Adicionar ao portfolio?'
