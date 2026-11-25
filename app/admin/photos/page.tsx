@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react'
 import { Upload, Heart, ImageIcon, Trash2, X, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { uploadToCloudinary } from '@/lib/cloudinary-upload'
+
 
 interface Photo {
   id: string; url: string; thumbnail_url: string
@@ -66,31 +68,45 @@ export default function AdminPhotosPage() {
   }
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? [])
-    if (!files.length) return
-    setUploading(true)
-    setProgress({ done: 0, total: files.length })
-    const token = await getToken()
+  const files = Array.from(e.target.files ?? [])
+  if (!files.length || !event) return
 
-    for (let i = 0; i < files.length; i++) {
-      const fd = new FormData()
-      fd.append('files', files[i])
-      fd.append('event_slug', 'portfolio')
-      fd.append('is_portfolio', 'true')
-      if (selectedCategory) fd.append('category_id', selectedCategory)
+  setUploading(true)
+  setProgress({ done: 0, total: files.length })
+  const token = await getToken()
 
-      await fetch('/api/photos/upload', {
+  for (let i = 0; i < files.length; i++) {
+    try {
+      // 1. Upload direto para Cloudinary (sem passar pelo Vercel)
+      const uploaded = await uploadToCloudinary(files[i], `gazelle/${event.slug}`)
+
+      // 2. Guarda só o URL na base de dados (request pequeno, sem timeout)
+      await fetch('/api/photos/save', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          event_id:      id,
+          url:           uploaded.url,
+          thumbnail_url: uploaded.thumbnail_url,
+          public_id:     uploaded.public_id,
+          width:         uploaded.width,
+          height:        uploaded.height,
+        }),
       })
-      setProgress({ done: i + 1, total: files.length })
+    } catch (err) {
+      console.error('Erro no upload:', err)
     }
-
-    await loadPhotos()
-    setUploading(false)
-    if (inputRef.current) inputRef.current.value = ''
+    setProgress({ done: i + 1, total: files.length })
   }
+
+  await loadPhotos()
+  setUploading(false)
+  setProgress({ done: 0, total: 0 })
+  if (inputRef.current) inputRef.current.value = ''
+}
 
   async function togglePortfolio(photo: Photo) {
     const action = photo.is_portfolio ? 'Remover do portfolio?' : 'Adicionar ao portfolio?'
