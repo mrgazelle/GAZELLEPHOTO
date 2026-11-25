@@ -41,7 +41,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── HERO ── */}
+            {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pb-24">
         <div className="absolute inset-0" style={{
           backgroundImage: 'linear-gradient(rgba(96,165,250,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(96,165,250,0.03) 1px, transparent 1px)',
@@ -51,43 +51,44 @@ export default async function HomePage() {
           <div className="w-[600px] h-[600px] rounded-full"
             style={{ background: 'radial-gradient(circle, rgba(96,165,250,0.06) 0%, transparent 70%)' }} />
         </div>
-      </div>
 
-      <div className="container mx-auto px-6 text-center relative z-10">
-        <div className="inline-flex items-center gap-2 border border-gz-blue/20 rounded-full
-          px-4 py-1.5 mb-8 bg-gz-blue/5 backdrop-blur-sm">
-          <span className="w-1.5 h-1.5 bg-gz-blue rounded-full animate-pulse-slow" />
-          <span className="font-display text-xs tracking-widest uppercase text-gz-blue">
-            Santarém, Portugal
-          </span>
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 border border-gz-blue/20 rounded-full
+            px-4 py-1.5 mb-8 bg-gz-blue/5 backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 bg-gz-blue rounded-full animate-pulse-slow" />
+            <span className="font-display text-xs tracking-widest uppercase text-gz-blue">
+              Santarém, Portugal
+            </span>
+          </div>
+
+          <h1 className="font-display text-6xl md:text-8xl font-bold tracking-tight mb-6
+            bg-gradient-to-b from-gz-white to-gz-dim bg-clip-text text-transparent">
+            GAZELLE<br />PHOTO
+          </h1>
+
+          <p className="text-gz-ghost text-lg md:text-xl font-light mb-10 max-w-md mx-auto leading-relaxed">
+            Ainda estou no início.<br />
+            Mas já gosto do que vejo.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/portfolio" className="gz-btn-primary flex items-center justify-center gap-2">
+              Ver Portfolio
+            </Link>
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"
+              className="gz-btn-ghost flex items-center justify-center gap-2">
+              <Instagram size={16} /> Segue-me
+            </a>
+          </div>
         </div>
 
-        <h1 className="font-display text-6xl md:text-8xl font-bold tracking-tight mb-6
-          bg-gradient-to-b from-gz-white to-gz-dim bg-clip-text text-transparent">
-          GAZELLE<br />PHOTO
-        </h1>
-
-        <p className="text-gz-ghost text-lg md:text-xl font-light mb-10 max-w-md mx-auto leading-relaxed">
-          Ainda estou no início.<br />
-          Mas já gosto do que vejo.
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/portfolio" className="gz-btn-primary flex items-center justify-center gap-2">
-            Ver Portfolio
-          </Link>
-          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"
-            className="gz-btn-ghost flex items-center justify-center gap-2">
-            <Instagram size={16} /> Segue-me
-          </a>
-        </div>
-
+        {/* fora do container, para ficar no fundo da secção */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
           <span className="font-display text-xs tracking-widest uppercase text-gz-dim">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-gz-dim to-transparent" />
         </div>
-      </div>
-    </section>
+      </section>
+    
 
     <div className="mt-24"></div>
 

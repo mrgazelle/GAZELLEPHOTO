@@ -4,7 +4,7 @@ import { PortfolioClient } from './PortfolioClient'
 import type { Category, Photo } from '@/types'
 export const revalidate = 3600 // cache por 1 hora
 
-export const metadata: Metadata,
+export const metadata: Metadata = {
   title: 'Portfolio',
   description: 'Galeria completa — Urban, Cars, People, Night.',
 }
